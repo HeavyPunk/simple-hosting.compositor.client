@@ -14,14 +14,16 @@ import settings.ClientSettings
 import com.google.gson.Gson
 import java.net.http.HttpRequest.BodyPublishers
 
-class CommonCompositorClient(val clientSettings: ClientSettings) extends CompositorClient {
-    
+class CommonCompositorClient(
+    val clientSettings: ClientSettings,
+) extends CompositorClient {
+    val jsonSerializer = new Gson();
+
     def createServer(request: CreateServerRequest, timeout: OffsetTime): CreateServerResponse = {
         val apiUri = clientSettings.apiUri.getPath()
         val endpoint = CommonCompositorClient.createServerPath
-        val serializer = new Gson()
-        var req = HttpRequest.newBuilder(URI.create(apiUri + endpoint))
-            .POST(BodyPublishers.ofString(serializer.toJson(request)))
+        val req = HttpRequest.newBuilder(URI.create(apiUri + endpoint))
+            .POST(BodyPublishers.ofString(jsonSerializer.toJson(request)))
             .header("Authorization", s"Bearer ${clientSettings.apiKey}")
             .build();
         val client = HttpClient.newBuilder()
@@ -30,13 +32,28 @@ class CommonCompositorClient(val clientSettings: ClientSettings) extends Composi
         val statusCode = mapStatusCode(resp.statusCode())
         if statusCode == StatusCode.InternalServerError then
             throw new java.lang.RuntimeException(s"Create server returns a ${statusCode}")
-        val body = serializer.fromJson(resp.body(), classOf[CreateServerResponse])
+        val body = jsonSerializer.fromJson(resp.body(), classOf[CreateServerResponse])
 
-        return body
+        body
     }
 
     def stopServer(request: StopServerRequest, timeout: OffsetTime): StopServerResponse = {
-        StopServerResponse(true)
+        val apiUri = clientSettings.apiUri.getPath();
+        val endpoint = CommonCompositorClient.stopServerPath
+
+        val req = HttpRequest.newBuilder(URI.create(apiUri + endpoint))
+            .POST(BodyPublishers.ofString(jsonSerializer.toJson(request)))
+            .header("Authorization", s"Bearer ${clientSettings.apiKey}")
+            .build();
+        val client = HttpClient.newBuilder()
+            .build()
+        val resp = client.send(req, BodyHandlers.ofString())
+        val statusCode = mapStatusCode(resp.statusCode())
+        if statusCode == StatusCode.InternalServerError then
+            throw new java.lang.RuntimeException(s"Create server returns a ${statusCode}")
+        val body = jsonSerializer.fromJson(resp.body(), classOf[StopServerResponse])
+
+        body
     }
 }
 
