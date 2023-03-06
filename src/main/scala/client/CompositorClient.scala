@@ -1,16 +1,12 @@
 package client
 
+import java.time.OffsetTime
 import models.CreateServerResponse
-import models.CreateServerRequest
 import models.StopServerRequest
 import models.StopServerResponse
+import models.CreateServerRequest
 
-class CompositorClient {
-    def createServer(request: CreateServerRequest): CreateServerResponse = {
-        CreateServerResponse("")
-    }
-
-    def stopServer(request: StopServerRequest): StopServerResponse = {
-        StopServerResponse(true)
-    }
+trait CompositorClient {
+  def createServer(request: CreateServerRequest, timeout: OffsetTime): CreateServerResponse
+  def stopServer(request: StopServerRequest, timeout: OffsetTime): StopServerResponse
 }
