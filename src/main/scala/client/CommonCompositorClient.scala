@@ -13,6 +13,10 @@ import java.net.http.HttpResponse.BodyHandlers
 import settings.ClientSettings
 import com.google.gson.Gson
 import java.net.http.HttpRequest.BodyPublishers
+import models.StartServerRequest
+import models.StartServerResponse
+import models.RemoveServerRequest
+import models.RemoveServerResponse
 
 class CommonCompositorClient(
     val clientSettings: ClientSettings,
@@ -55,11 +59,47 @@ class CommonCompositorClient(
 
         body
     }
+
+    def startServer(request: StartServerRequest, timeout: OffsetTime): StartServerResponse = 
+        val apiUri = clientSettings.apiUri.getPath()
+        val endpoint = CommonCompositorClient.startServerPath
+
+        val req = HttpRequest.newBuilder(URI.create(apiUri + endpoint))
+            .POST(BodyPublishers.ofString(jsonSerializer.toJson(request)))
+            .header("Authorization", s"Bearer ${clientSettings.apiKey}")
+            .build()
+        val client = HttpClient.newBuilder()
+            .build()
+        val resp = client.send(req, BodyHandlers.ofString())
+        val statusCode = mapStatusCode(resp.statusCode())
+        if statusCode == StatusCode.InternalServerError then
+            throw new RuntimeException(s"Start server returns a ${statusCode}")
+        val body = jsonSerializer.fromJson(resp.body(), classOf[StartServerResponse])
+        body
+
+    def removeServer(request: RemoveServerRequest, timeout: OffsetTime): RemoveServerResponse =
+        val apiUri = clientSettings.apiUri.getPath()
+        val endpoint = CommonCompositorClient.removeServerPath
+
+        val req = HttpRequest.newBuilder(URI.create(apiUri + endpoint))
+            .POST(BodyPublishers.ofString(jsonSerializer.toJson(request)))
+            .header("Authorization", s"Bearer ${clientSettings.apiKey}")
+            .build()
+        val client = HttpClient.newBuilder()
+            .build()
+        val resp = client.send(req, BodyHandlers.ofString())
+        val statusCode = mapStatusCode(resp.statusCode())
+        if statusCode == StatusCode.InternalServerError then
+            throw new RuntimeException(s"Start server returns a ${statusCode}")
+        val body = jsonSerializer.fromJson(resp.body(), classOf[RemoveServerResponse])
+        body
 }
 
 object CommonCompositorClient {
   val createServerPath = "/server/create"
   val stopServerPath = "/server/stop"
+  val startServerPath = "/server/start"
+  val removeServerPath = "/server/remove"
 }
 
 enum StatusCode(code: Int) {

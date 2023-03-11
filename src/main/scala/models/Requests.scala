@@ -40,3 +40,12 @@ class StartServerRequest(
         val obj = other.asInstanceOf[StartServerRequest]
         obj.vmId.equals(vmId)
 }
+
+class RemoveServerRequest(
+    @SerializedName("vm-id") val vmId: String
+){
+    override def equals(other: Any): Boolean =
+        other.getClass().equals(classOf[RemoveServerRequest])
+        val obj = other.asInstanceOf[RemoveServerRequest]
+        obj.vmId.equals(vmId)
+}

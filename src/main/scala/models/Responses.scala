@@ -32,3 +32,14 @@ class StopServerResponse(
         val obj = other.asInstanceOf[StopServerResponse]
         obj.success.equals(success)
 }
+
+class RemoveServerResponse(
+    @SerializedName("success") val success: Boolean,
+    @SerializedName("error") val error: String
+){
+    override def equals(other: Any): Boolean =
+        other.getClass().equals(classOf[RemoveServerResponse])
+        val obj = other.asInstanceOf[RemoveServerResponse]
+        obj.success.equals(success)
+        && obj.error.equals(error)
+}
