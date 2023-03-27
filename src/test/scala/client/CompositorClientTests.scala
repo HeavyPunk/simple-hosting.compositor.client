@@ -1,9 +1,9 @@
 package client
 
-import settings.ClientSettings
+import io.github.heavypunk.compositor.client.settings.ClientSettings
 import java.net.URI
 import com.google.gson.Gson
-import models.CreateServerRequest
+import io.github.heavypunk.compositor.client.models.CreateServerRequest
 
 class CompositorClientTests extends munit.FunSuite{
   test("Serialize create server request") {

@@ -1,22 +1,22 @@
-package client
+package io.github.heavypunk.compositor.client
 
-import models.CreateServerResponse
-import models.CreateServerRequest
-import models.StopServerRequest
-import models.StopServerResponse
+import io.github.heavypunk.compositor.client.models.CreateServerResponse
+import io.github.heavypunk.compositor.client.models.CreateServerRequest
+import io.github.heavypunk.compositor.client.models.StopServerRequest
+import io.github.heavypunk.compositor.client.models.StopServerResponse
 import java.time.OffsetTime
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.URI
 import java.net.http.HttpResponse
 import java.net.http.HttpResponse.BodyHandlers
-import settings.ClientSettings
+import io.github.heavypunk.compositor.client.settings.ClientSettings
 import com.google.gson.Gson
 import java.net.http.HttpRequest.BodyPublishers
-import models.StartServerRequest
-import models.StartServerResponse
-import models.RemoveServerRequest
-import models.RemoveServerResponse
+import io.github.heavypunk.compositor.client.models.StartServerRequest
+import io.github.heavypunk.compositor.client.models.StartServerResponse
+import io.github.heavypunk.compositor.client.models.RemoveServerRequest
+import io.github.heavypunk.compositor.client.models.RemoveServerResponse
 
 class CommonCompositorClient(
     val clientSettings: ClientSettings,

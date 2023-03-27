@@ -1,4 +1,4 @@
-package settings
+package io.github.heavypunk.compositor.client.settings
 
 import java.net.URI
 

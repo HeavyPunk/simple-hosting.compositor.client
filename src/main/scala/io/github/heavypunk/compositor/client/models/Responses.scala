@@ -1,4 +1,4 @@
-package models
+package io.github.heavypunk.compositor.client.models
 
 import com.google.gson.annotations.SerializedName
 
