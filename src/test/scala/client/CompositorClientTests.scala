@@ -2,37 +2,22 @@ package client
 
 import io.github.heavypunk.compositor.client.settings.ClientSettings
 import java.net.URI
-import com.google.gson.Gson
 import io.github.heavypunk.compositor.client.models.CreateServerRequest
+import io.github.heavypunk.compositor.client.CommonCompositorClient
+import java.time.Duration
 
 class CompositorClientTests extends munit.FunSuite{
-  test("Serialize create server request") {
-    val json = new Gson()
-    val res = json.toJson(new CreateServerRequest(
-      "image-uri",
-      "vm",
-      1024 * 1024 * 1024,
-      1024 * 1024 * 1024 * 5,
+  test("Create server request") {
+    val settings = new ClientSettings(new URI("http://localhost:8080"), "compositors")
+    val client = new CommonCompositorClient(settings)
+    val resp = client.createServer(new CreateServerRequest(
+      "kirieshki/simple-hosting-minecraft-vanilla:preview-23.03.23.1",
+      "kirieshki-main",
+      322122547,
+      1000000000,
       0,
-      Array()
-    ))
-    assertEquals(res, "{\"vmImageUri\":\"image-uri\",\"vmName\":\"vm\",\"vmAvailableRamBytes\":1073741824,\"vmAvailableDiskBytes\":1073741824,\"vmAvailableSwapBytes\":0,\"vmExposePorts\":[]}")
-  }
-
-  test("Deserialize create server request") {
-    val json = new Gson()
-    val res = json.fromJson(
-      "{\"vmImageUri\":\"image-uri\",\"vmName\":\"vm\",\"vmAvailableRamBytes\":1073741824,\"vmAvailableDiskBytes\":1073741824,\"vmAvailableSwapBytes\":0,\"vmExposePorts\":[]}",
-      classOf[CreateServerRequest]
-    )
-    var etalon = new CreateServerRequest(
-      "image-uri",
-      "vm",
-      1024 * 1024 * 1024,
-      1024 * 1024 * 1024 * 5,
-      0,
-      Array()
-    )
-    assertEquals(res, etalon)
+      Array("8989:8989/tcp", "25565/tcp")
+    ), Duration.ofMinutes(2))
+    assert(resp.vmId != None && resp.vmId != "")
   }
 }

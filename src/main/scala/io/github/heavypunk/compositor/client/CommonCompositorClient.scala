@@ -11,88 +11,96 @@ import java.net.URI
 import java.net.http.HttpResponse
 import java.net.http.HttpResponse.BodyHandlers
 import io.github.heavypunk.compositor.client.settings.ClientSettings
-import com.google.gson.Gson
 import java.net.http.HttpRequest.BodyPublishers
 import io.github.heavypunk.compositor.client.models.StartServerRequest
 import io.github.heavypunk.compositor.client.models.StartServerResponse
 import io.github.heavypunk.compositor.client.models.RemoveServerRequest
 import io.github.heavypunk.compositor.client.models.RemoveServerResponse
+import java.time.Duration
+import com.fasterxml.jackson.databind.json.JsonMapper
+import com.fasterxml.jackson.module.scala.DefaultScalaModule
+import com.fasterxml.jackson.databind.DeserializationFeature
 
 class CommonCompositorClient(
     val clientSettings: ClientSettings,
 ) extends CompositorClient {
-    val jsonSerializer = new Gson();
+    val jsonizer = JsonMapper.builder()
+        .addModule(DefaultScalaModule)
+        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+        .build()
 
-    def createServer(request: CreateServerRequest, timeout: OffsetTime): CreateServerResponse = {
-        val apiUri = clientSettings.apiUri.getPath()
+    def createServer(request: CreateServerRequest, timeout: Duration): CreateServerResponse = {
+        val apiUri = clientSettings.apiUri.toString
         val endpoint = CommonCompositorClient.createServerPath
+        val content = jsonizer.writeValueAsString(request)
         val req = HttpRequest.newBuilder(URI.create(apiUri + endpoint))
-            .POST(BodyPublishers.ofString(jsonSerializer.toJson(request)))
+            .POST(BodyPublishers.ofString(content))
             .header("Authorization", s"Bearer ${clientSettings.apiKey}")
             .build();
         val client = HttpClient.newBuilder()
             .build()
         val resp = client.send(req, BodyHandlers.ofString())
-        val statusCode = mapStatusCode(resp.statusCode())
-        if statusCode == StatusCode.InternalServerError then
-            throw new java.lang.RuntimeException(s"Create server returns a ${statusCode}")
-        val body = jsonSerializer.fromJson(resp.body(), classOf[CreateServerResponse])
+        if (resp.statusCode() == 500)
+            throw new java.lang.RuntimeException(s"Create server returns a ${resp.statusCode()}")
+        val body = jsonizer.readValue(resp.body(), classOf[CreateServerResponse])
 
         body
     }
 
-    def stopServer(request: StopServerRequest, timeout: OffsetTime): StopServerResponse = {
+    def stopServer(request: StopServerRequest, timeout: Duration): StopServerResponse = {
         val apiUri = clientSettings.apiUri.getPath();
         val endpoint = CommonCompositorClient.stopServerPath
 
+        val content = jsonizer.writeValueAsString(request)
         val req = HttpRequest.newBuilder(URI.create(apiUri + endpoint))
-            .POST(BodyPublishers.ofString(jsonSerializer.toJson(request)))
+            .POST(BodyPublishers.ofString(content))
             .header("Authorization", s"Bearer ${clientSettings.apiKey}")
             .build();
         val client = HttpClient.newBuilder()
             .build()
         val resp = client.send(req, BodyHandlers.ofString())
-        val statusCode = mapStatusCode(resp.statusCode())
-        if statusCode == StatusCode.InternalServerError then
-            throw new java.lang.RuntimeException(s"Create server returns a ${statusCode}")
-        val body = jsonSerializer.fromJson(resp.body(), classOf[StopServerResponse])
+        if (resp.statusCode() == 500)
+            throw new java.lang.RuntimeException(s"Stop server returns a ${resp.statusCode()}")
+        val body = jsonizer.readValue(resp.body(), classOf[StopServerResponse])
 
         body
     }
 
-    def startServer(request: StartServerRequest, timeout: OffsetTime): StartServerResponse = 
+    def startServer(request: StartServerRequest, timeout: Duration): StartServerResponse = {
         val apiUri = clientSettings.apiUri.getPath()
         val endpoint = CommonCompositorClient.startServerPath
 
+        val content = jsonizer.writeValueAsString(request)
         val req = HttpRequest.newBuilder(URI.create(apiUri + endpoint))
-            .POST(BodyPublishers.ofString(jsonSerializer.toJson(request)))
+            .POST(BodyPublishers.ofString(content))
             .header("Authorization", s"Bearer ${clientSettings.apiKey}")
             .build()
         val client = HttpClient.newBuilder()
             .build()
         val resp = client.send(req, BodyHandlers.ofString())
-        val statusCode = mapStatusCode(resp.statusCode())
-        if statusCode == StatusCode.InternalServerError then
-            throw new RuntimeException(s"Start server returns a ${statusCode}")
-        val body = jsonSerializer.fromJson(resp.body(), classOf[StartServerResponse])
+        if (resp.statusCode() == 500)
+            throw new RuntimeException(s"Start server returns a ${resp.statusCode()}")
+        val body = jsonizer.readValue(resp.body(), classOf[StartServerResponse])
         body
+    }
 
-    def removeServer(request: RemoveServerRequest, timeout: OffsetTime): RemoveServerResponse =
+    def removeServer(request: RemoveServerRequest, timeout: Duration): RemoveServerResponse = {
         val apiUri = clientSettings.apiUri.getPath()
         val endpoint = CommonCompositorClient.removeServerPath
 
+        val content = jsonizer.writeValueAsString(request)
         val req = HttpRequest.newBuilder(URI.create(apiUri + endpoint))
-            .POST(BodyPublishers.ofString(jsonSerializer.toJson(request)))
+            .POST(BodyPublishers.ofString(content))
             .header("Authorization", s"Bearer ${clientSettings.apiKey}")
             .build()
         val client = HttpClient.newBuilder()
             .build()
         val resp = client.send(req, BodyHandlers.ofString())
-        val statusCode = mapStatusCode(resp.statusCode())
-        if statusCode == StatusCode.InternalServerError then
-            throw new RuntimeException(s"Start server returns a ${statusCode}")
-        val body = jsonSerializer.fromJson(resp.body(), classOf[RemoveServerResponse])
+        if (resp.statusCode() == 500)
+            throw new RuntimeException(s"Start server returns a ${resp.statusCode()}")
+        val body = jsonizer.readValue(resp.body(), classOf[RemoveServerResponse])
         body
+    }
 }
 
 object CommonCompositorClient {
@@ -102,27 +110,3 @@ object CommonCompositorClient {
   val removeServerPath = "/server/remove"
 }
 
-enum StatusCode(code: Int) {
-    case UnknownStatusCode extends StatusCode(-1)
-    case BadRequest extends StatusCode(400)
-    case Unauthorized extends StatusCode(401)
-    case PaymentRequired extends StatusCode(402)
-    case Forbidden extends StatusCode(403)
-    case InternalServerError extends StatusCode(500)
-    case NotImplemented extends StatusCode(501)
-    case ServiceUnavailable extends StatusCode(503)
-}
-
-def mapStatusCode(code: Int): StatusCode = {
-    val map = Map(
-        -1 -> StatusCode.UnknownStatusCode,
-        400 -> StatusCode.BadRequest,
-        401 -> StatusCode.Unauthorized,
-        402 -> StatusCode.PaymentRequired,
-        403 -> StatusCode.Forbidden,
-        500 -> StatusCode.InternalServerError,
-        501 -> StatusCode.NotImplemented,
-        503 -> StatusCode.ServiceUnavailable
-    )
-    map.getOrElse(code, StatusCode.UnknownStatusCode)
-}

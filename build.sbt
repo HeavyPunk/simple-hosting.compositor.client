@@ -1,4 +1,4 @@
-val scala3Version = "3.2.2"
+val scala3Version = "2.13.10"
 
 lazy val root = project
   .in(file("."))
@@ -26,5 +26,5 @@ lazy val root = project
     scalaVersion := scala3Version,
 
     libraryDependencies += "org.scalameta" %% "munit" % "0.7.29" % Test,
-    libraryDependencies += "com.google.code.gson" % "gson" % "2.10.1",
+    libraryDependencies += "com.fasterxml.jackson.module"     %% "jackson-module-scala" % "2.14.1"
   )
