@@ -48,7 +48,7 @@ class CommonCompositorClient(
     }
 
     def stopServer(request: StopServerRequest, timeout: Duration): StopServerResponse = {
-        val apiUri = clientSettings.apiUri.getPath();
+        val apiUri = clientSettings.apiUri.toString;
         val endpoint = CommonCompositorClient.stopServerPath
 
         val content = jsonizer.writeValueAsString(request)
@@ -67,7 +67,7 @@ class CommonCompositorClient(
     }
 
     def startServer(request: StartServerRequest, timeout: Duration): StartServerResponse = {
-        val apiUri = clientSettings.apiUri.getPath()
+        val apiUri = clientSettings.apiUri.toString
         val endpoint = CommonCompositorClient.startServerPath
 
         val content = jsonizer.writeValueAsString(request)
@@ -85,7 +85,7 @@ class CommonCompositorClient(
     }
 
     def removeServer(request: RemoveServerRequest, timeout: Duration): RemoveServerResponse = {
-        val apiUri = clientSettings.apiUri.getPath()
+        val apiUri = clientSettings.apiUri.toString
         val endpoint = CommonCompositorClient.removeServerPath
 
         val content = jsonizer.writeValueAsString(request)
