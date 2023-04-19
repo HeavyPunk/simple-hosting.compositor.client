@@ -16,8 +16,6 @@ class CreateServerRequest(
         val obj = other.asInstanceOf[CreateServerRequest]
         vmImageUri.equals(obj.vmImageUri) && vmName.equals(obj.vmName) && vmAvailableRamBytes.equals(obj.vmAvailableRamBytes) && vmAvailableDiskBytes.equals(obj.vmAvailableDiskBytes) && vmAvailableSwapBytes.equals(obj.vmAvailableSwapBytes)
     }
-    
-
 }
 
 class StopServerRequest(

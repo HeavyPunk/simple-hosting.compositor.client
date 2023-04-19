@@ -4,7 +4,7 @@ lazy val root = project
   .in(file("."))
   .settings(
     name := "simplehosting.compositor.client",
-    version := "0.1.0-SNAPSHOT",
+    version := "20.04.23.1",
 
     organization := "io.github.heavypunk",
     homepage := Some(url("https://github.com/HeavyPunk/simple-hosting.compositor.client")),

@@ -45,3 +45,16 @@ class RemoveServerResponse(
         obj.success.equals(success) && obj.error.equals(error)
     }
 }
+
+case class VmUnit(
+    @JsonProperty("names") val names: Array[String],
+    @JsonProperty("id") val id: String,
+    @JsonProperty("state") val state: String,
+    @JsonProperty("status") val status: String
+)
+
+class GetServerListResponse(
+    @JsonProperty("vm-list") val vmList: Array[VmUnit],
+    @JsonProperty("success") val success: Boolean,
+    @JsonProperty("error") val error: String,
+)

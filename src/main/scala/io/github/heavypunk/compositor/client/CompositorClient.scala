@@ -9,8 +9,10 @@ import io.github.heavypunk.compositor.client.models.StartServerResponse
 import io.github.heavypunk.compositor.client.models.StartServerRequest
 import io.github.heavypunk.compositor.client.models.RemoveServerRequest
 import java.time.Duration
+import io.github.heavypunk.compositor.client.models.GetServerListResponse
 
 trait CompositorClient {
+  def getServerList(): GetServerListResponse
   def createServer(request: CreateServerRequest, timeout: Duration): CreateServerResponse
   def stopServer(request: StopServerRequest, timeout: Duration): StopServerResponse
   def startServer(request: StartServerRequest, timeout: Duration): StartServerResponse

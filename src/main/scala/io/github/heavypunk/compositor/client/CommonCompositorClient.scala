@@ -20,14 +20,33 @@ import java.time.Duration
 import com.fasterxml.jackson.databind.json.JsonMapper
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.fasterxml.jackson.databind.DeserializationFeature
+import io.github.heavypunk.compositor.client.models.GetServerListResponse
 
 class CommonCompositorClient(
     val clientSettings: ClientSettings,
 ) extends CompositorClient {
+
     val jsonizer = JsonMapper.builder()
         .addModule(DefaultScalaModule)
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
         .build()
+    private val authHeader = "X-ApiKey"
+
+    override def getServerList(): GetServerListResponse = {
+        val apiUri = clientSettings.apiUri
+        val endpoint = CommonCompositorClient.listServerPaths
+        val req = HttpRequest.newBuilder(URI.create(apiUri + endpoint))
+            .GET()
+            .header(authHeader, clientSettings.apiKey)
+            .build();
+        val client = HttpClient.newBuilder()
+            .build()
+        val resp = client.send(req, BodyHandlers.ofString())
+        if (resp.statusCode() == 500)
+            throw new RuntimeException(s"List servers returns a ${resp.statusCode()}")
+        val body = jsonizer.readValue(resp.body(), classOf[GetServerListResponse])
+        body
+    }
 
     def createServer(request: CreateServerRequest, timeout: Duration): CreateServerResponse = {
         val apiUri = clientSettings.apiUri.toString
@@ -35,7 +54,7 @@ class CommonCompositorClient(
         val content = jsonizer.writeValueAsString(request)
         val req = HttpRequest.newBuilder(URI.create(apiUri + endpoint))
             .POST(BodyPublishers.ofString(content))
-            .header("Authorization", s"Bearer ${clientSettings.apiKey}")
+            .header(authHeader, clientSettings.apiKey)
             .build();
         val client = HttpClient.newBuilder()
             .build()
@@ -54,7 +73,7 @@ class CommonCompositorClient(
         val content = jsonizer.writeValueAsString(request)
         val req = HttpRequest.newBuilder(URI.create(apiUri + endpoint))
             .POST(BodyPublishers.ofString(content))
-            .header("Authorization", s"Bearer ${clientSettings.apiKey}")
+            .header(authHeader, clientSettings.apiKey)
             .build();
         val client = HttpClient.newBuilder()
             .build()
@@ -73,7 +92,7 @@ class CommonCompositorClient(
         val content = jsonizer.writeValueAsString(request)
         val req = HttpRequest.newBuilder(URI.create(apiUri + endpoint))
             .POST(BodyPublishers.ofString(content))
-            .header("Authorization", s"Bearer ${clientSettings.apiKey}")
+            .header(authHeader, clientSettings.apiKey)
             .build()
         val client = HttpClient.newBuilder()
             .build()
@@ -91,7 +110,7 @@ class CommonCompositorClient(
         val content = jsonizer.writeValueAsString(request)
         val req = HttpRequest.newBuilder(URI.create(apiUri + endpoint))
             .POST(BodyPublishers.ofString(content))
-            .header("Authorization", s"Bearer ${clientSettings.apiKey}")
+            .header(authHeader, clientSettings.apiKey)
             .build()
         val client = HttpClient.newBuilder()
             .build()
@@ -108,5 +127,6 @@ object CommonCompositorClient {
   val stopServerPath = "/server/stop"
   val startServerPath = "/server/start"
   val removeServerPath = "/server/remove"
+  val listServerPaths = "/server/list"
 }
 
